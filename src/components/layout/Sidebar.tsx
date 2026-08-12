@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FileText, PlusCircle, Clock, FolderKanban } from 'lucide-react'
+import { LayoutDashboard, FileText, PlusCircle, Clock, FolderKanban, ClipboardList } from 'lucide-react'
 
 const NAV_ITEMS = [
   {
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
     items: [
       { label: 'All Contracts', href: '/contracts', icon: FileText },
       { label: 'New Request', href: '/contracts/new', icon: PlusCircle },
+      { label: 'Requisition List', href: '/contracts/requisition-list', icon: ClipboardList },
       { label: 'Expiry Report', href: '/contracts/expiry-report', icon: Clock },
       { label: 'Contract Repository', href: '/contracts/repository', icon: FolderKanban },
     ],

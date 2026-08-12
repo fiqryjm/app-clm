@@ -31,10 +31,12 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
 
 function StatusBadge({ status }: { status: string }) {
   const cls: Record<string, string> = {
-    ACTIVE: 'status-active', REQUEST: 'status-request',
-    DRAFT: 'status-draft', EXPIRED: 'status-expired', TERMINATED: 'status-terminated',
+    ACTIVE: 'status-active', REQUEST: 'status-request', REJECT: 'status-reject',
+    BIDDING: 'status-bidding', DRAFT: 'status-draft', EXPIRED: 'status-expired',
+    TERMINATED: 'status-terminated',
   }
-  return <span className={`text-sm font-semibold px-3 py-1 rounded-full ${cls[status] || 'status-draft'}`}>{status}</span>
+  const label = status === 'ACTIVE' ? 'Active Contract' : status
+  return <span className={`text-sm font-semibold px-3 py-1 rounded-full ${cls[status] || 'status-draft'}`}>{label}</span>
 }
 
 function ValueCard({ label, value, currency, color }: { label: string; value: number | null | undefined; currency: string; color?: string }) {
@@ -48,7 +50,7 @@ function ValueCard({ label, value, currency, color }: { label: string; value: nu
   )
 }
 
-const STATUS_OPTIONS = ['REQUEST', 'DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED'] as const
+const STATUS_OPTIONS = ['REQUEST', 'REJECT', 'BIDDING', 'ACTIVE', 'DRAFT', 'EXPIRED', 'TERMINATED'] as const
 
 function ContractDetailPageContent() {
   const params = useParams()

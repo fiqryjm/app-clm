@@ -77,6 +77,8 @@ export const CONTRACT_TYPES = [
 
 export const CONTRACT_STATUSES = [
   'REQUEST',
+  'REJECT',
+  'BIDDING',
   'DRAFT',
   'ACTIVE',
   'EXPIRED',
@@ -87,8 +89,10 @@ export type ContractStatus = typeof CONTRACT_STATUSES[number]
 
 export const STATUS_LABELS: Record<ContractStatus, string> = {
   REQUEST: 'Request',
+  REJECT: 'Reject',
+  BIDDING: 'Bidding',
   DRAFT: 'Draft',
-  ACTIVE: 'Active',
+  ACTIVE: 'Active Contract',
   EXPIRED: 'Expired',
   TERMINATED: 'Terminated',
 }

@@ -9,10 +9,12 @@ import type { Contract, ContractStatus } from '@/types/database'
 
 function StatusBadge({ status }: { status: string }) {
   const cls: Record<string, string> = {
-    ACTIVE: 'status-active', REQUEST: 'status-request',
-    DRAFT: 'status-draft', EXPIRED: 'status-expired', TERMINATED: 'status-terminated',
+    ACTIVE: 'status-active', REQUEST: 'status-request', REJECT: 'status-reject',
+    BIDDING: 'status-bidding', DRAFT: 'status-draft', EXPIRED: 'status-expired',
+    TERMINATED: 'status-terminated',
   }
-  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] || 'status-draft'}`}>{status}</span>
+  const label = status === 'ACTIVE' ? 'Active Contract' : status
+  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] || 'status-draft'}`}>{label}</span>
 }
 
 function TypeBadge({ type }: { type: string }) {
@@ -26,7 +28,7 @@ function TypeBadge({ type }: { type: string }) {
   )
 }
 
-const STATUS_OPTIONS: ContractStatus[] = ['REQUEST', 'DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED']
+const STATUS_OPTIONS: ContractStatus[] = ['REQUEST', 'REJECT', 'BIDDING', 'DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED']
 
 export default function ContractsPage() {
   const [contracts, setContracts] = useState<Contract[]>([])

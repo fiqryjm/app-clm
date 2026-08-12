@@ -28,13 +28,16 @@ function StatusBadge({ status }: { status: string }) {
   const cls: Record<string, string> = {
     ACTIVE: 'status-active',
     REQUEST: 'status-request',
+    REJECT: 'status-reject',
+    BIDDING: 'status-bidding',
     DRAFT: 'status-draft',
     EXPIRED: 'status-expired',
     TERMINATED: 'status-terminated',
   }
+  const label = status === 'ACTIVE' ? 'Active Contract' : status
   return (
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${cls[status] || 'status-draft'}`}>
-      {status}
+      {label}
     </span>
   )
 }

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type ContractType = 'SALES' | 'SUPPLIER'
-export type ContractStatus = 'REQUEST' | 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
+export type ContractStatus = 'REQUEST' | 'REJECT' | 'BIDDING' | 'DRAFT' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED'
 
 export interface Contract {
   id: string
