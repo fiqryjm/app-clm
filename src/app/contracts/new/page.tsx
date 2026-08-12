@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, FileText, AlertCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, FileText, AlertCircle, Loader2, Upload, Trash2, FileIcon } from 'lucide-react'
 import Link from 'next/link'
 import { CURRENCIES, CONTRACT_TYPES } from '@/lib/utils'
 import { supabase, generateNextContractId } from '@/lib/supabase'
@@ -26,21 +26,22 @@ function Field({ label, required, children, hint, className = '' }: {
 }) {
   return (
     <div className={className}>
-      <label className="label">
-        {label}{required && <span style={{ color: 'hsl(var(--danger))' }}> *</span>}
+      <label className="label mb-1.5 block">
+        {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
-      {hint && <p className="mt-1 text-xs" style={{ color: 'hsl(var(--foreground-muted))' }}>{hint}</p>}
+      {hint && <p className="text-[11px] mt-1" style={{ color: 'hsl(var(--foreground-muted))' }}>{hint}</p>}
     </div>
   )
 }
 
 export default function NewContractPage() {
   const router = useRouter()
-  const [contractType, setContractType] = useState<'SALES' | 'SUPPLIER'>('SUPPLIER')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [previewId, setPreviewId] = useState<string>('...')
   const [error, setError] = useState<string | null>(null)
+  const [contractType, setContractType] = useState<'SALES' | 'SUPPLIER'>('SUPPLIER')
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([])
 
   const [formData, setFormData] = useState({
     contract_title: '',
@@ -73,6 +74,17 @@ export default function NewContractPage() {
 
   const handleChange = (field: string, value: string) =>
     setFormData((prev) => ({ ...prev, [field]: value }))
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selected = Array.from(e.target.files)
+      setAttachedFiles((prev) => [...prev, ...selected])
+    }
+  }
+
+  const removeFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -117,6 +129,37 @@ export default function NewContractPage() {
         .single()
 
       if (insertError) throw insertError
+
+      // Upload attached files if any
+      if (attachedFiles.length > 0 && data?.id) {
+        for (const file of attachedFiles) {
+          try {
+            const fileExt = file.name.split('.').pop()
+            const filePath = `${data.id}/scope_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+
+            const { error: uploadErr } = await supabase.storage
+              .from('contract-documents')
+              .upload(filePath, file, { upsert: true })
+
+            if (!uploadErr) {
+              const { data: urlData } = supabase.storage
+                .from('contract-documents')
+                .getPublicUrl(filePath)
+
+              await supabase.from('attached_documents').insert({
+                contract_id: data.id,
+                document_type: 'OTHER',
+                description: `Attachment (Scope/Summary): ${file.name}`,
+                file_name: file.name,
+                file_url: urlData.publicUrl,
+              })
+            }
+          } catch (fileErr) {
+            console.error('Failed uploading attachment:', fileErr)
+          }
+        }
+      }
+
       router.push(`/contracts/${data.id}`)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create contract. Please try again.'
@@ -260,7 +303,42 @@ export default function NewContractPage() {
               </Field>
             </div>
             <Field label="BoM, Scope of Work" required hint="(*) Mandatory. Describe or attach scope of work, bill of materials, etc.">
-              <textarea className="input-base resize-none" rows={4} placeholder="Describe the scope of work..." required value={formData.bom_scope_of_work} onChange={(e) => handleChange('bom_scope_of_work', e.target.value)} />
+              <textarea className="input-base resize-none mb-3" rows={4} placeholder="Describe the scope of work..." required value={formData.bom_scope_of_work} onChange={(e) => handleChange('bom_scope_of_work', e.target.value)} />
+              
+              {/* File Attachment Dropzone */}
+              <div className="border border-dashed rounded-lg p-4 text-center hover:border-slate-500 transition-colors" style={{ borderColor: 'hsl(var(--border))', background: 'hsl(var(--surface-2))' }}>
+                <input
+                  type="file"
+                  id="scope-file-upload"
+                  multiple
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.zip"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                <label htmlFor="scope-file-upload" className="cursor-pointer flex flex-col items-center justify-center gap-1.5">
+                  <Upload size={22} className="text-sky-400" />
+                  <span className="text-xs font-semibold text-sky-400 hover:underline">Click to upload files (PDF, Image, Excel, Word) or drag & drop</span>
+                  <span className="text-[11px]" style={{ color: 'hsl(var(--foreground-muted))' }}>Attach any supporting files for BOM or Scope of Work</span>
+                </label>
+              </div>
+
+              {attachedFiles.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <div className="text-xs font-semibold" style={{ color: 'hsl(var(--foreground-muted))' }}>Selected Attachments ({attachedFiles.length}):</div>
+                  {attachedFiles.map((file, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-black/20 border border-white/5 text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileIcon size={14} className="text-sky-400 flex-shrink-0" />
+                        <span className="truncate font-medium" style={{ color: 'hsl(var(--foreground))' }}>{file.name}</span>
+                        <span className="text-[10px] text-slate-400">({(file.size / 1024).toFixed(0)} KB)</span>
+                      </div>
+                      <button type="button" onClick={() => removeFile(idx)} className="text-red-400 hover:text-red-300 p-1">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </Field>
           </FormSection>
         </div>
