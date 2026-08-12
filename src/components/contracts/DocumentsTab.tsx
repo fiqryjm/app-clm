@@ -26,8 +26,13 @@ export function DocumentsTab({ contractId }: { contractId: string }) {
         .from('attached_documents')
         .select('*')
         .eq('contract_id', contractId)
-        .order('item_no')
-      setDocs(data ?? [])
+        .order('created_at', { ascending: true })
+
+      const mapped = ((data as AttachedDocument[]) ?? []).map((d: AttachedDocument, i: number) => ({
+        ...d,
+        item_no: d.item_no ?? i + 1,
+      }))
+      setDocs(mapped)
       setLoading(false)
     }
     load()

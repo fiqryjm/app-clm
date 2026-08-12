@@ -132,27 +132,37 @@ export default function NewContractPage() {
 
       // Upload attached files if any
       if (attachedFiles.length > 0 && data?.id) {
+        let fileIdx = 1
         for (const file of attachedFiles) {
           try {
             const fileExt = file.name.split('.').pop()
-            const filePath = `${data.id}/scope_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+            const filePath = `${data.id}/doc_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
 
             const { error: uploadErr } = await supabase.storage
               .from('contract-documents')
               .upload(filePath, file, { upsert: true })
 
-            if (!uploadErr) {
-              const { data: urlData } = supabase.storage
-                .from('contract-documents')
-                .getPublicUrl(filePath)
+            if (uploadErr) {
+              console.error('Storage upload error:', uploadErr)
+            }
 
-              await supabase.from('attached_documents').insert({
-                contract_id: data.id,
-                document_type: 'OTHER',
-                description: `Attachment (Scope/Summary): ${file.name}`,
-                file_name: file.name,
-                file_url: urlData.publicUrl,
-              })
+            const { data: urlData } = supabase.storage
+              .from('contract-documents')
+              .getPublicUrl(filePath)
+
+            const fileUrl = urlData?.publicUrl || null
+
+            const { error: docInsertErr } = await supabase.from('attached_documents').insert({
+              contract_id: data.id,
+              item_no: fileIdx++,
+              document_type: 'BODY OF CONTRACT',
+              description: `Scope & Summary Attachment: ${file.name}`,
+              file_name: file.name,
+              file_url: fileUrl,
+            })
+
+            if (docInsertErr) {
+              console.error('Failed inserting attached_document record:', docInsertErr)
             }
           } catch (fileErr) {
             console.error('Failed uploading attachment:', fileErr)

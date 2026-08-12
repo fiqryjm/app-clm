@@ -5,11 +5,11 @@ import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import {
   ArrowLeft, Edit, FileText, DollarSign, Calendar,
-  Milestone, FolderOpen, AlertTriangle, CheckSquare, Clock, Loader2,
+  Milestone, FolderOpen, AlertTriangle, CheckSquare, Clock, Loader2, Download, FileIcon,
 } from 'lucide-react'
 import { formatCurrency, formatDate, getDaysUntilExpiry, CURRENCIES } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
-import type { Contract } from '@/types/database'
+import type { Contract, AttachedDocument } from '@/types/database'
 import { FinancialTab } from '@/components/contracts/FinancialTab'
 import { ProgressPaymentTab } from '@/components/contracts/ProgressPaymentTab'
 import { MilestonesTab } from '@/components/contracts/MilestonesTab'
@@ -307,6 +307,19 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
   editData: Partial<Contract>
   setEditData: (fn: (d: Partial<Contract>) => Partial<Contract>) => void
 }) {
+  const [scopeDocs, setScopeDocs] = useState<AttachedDocument[]>([])
+
+  useEffect(() => {
+    async function loadDocs() {
+      const { data } = await supabase
+        .from('attached_documents')
+        .select('*')
+        .eq('contract_id', c.id)
+      if (data) setScopeDocs(data)
+    }
+    loadDocs()
+  }, [c.id])
+
   const field = (key: keyof Contract) => editing ? (
     <input
       type={key.includes('date') ? 'date' : 'text'}
@@ -382,6 +395,32 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
               />
             ) : (
               <p className="text-sm whitespace-pre-wrap" style={{ color: 'hsl(var(--foreground))' }}>{c.bom_scope_of_work}</p>
+            )}
+
+            {scopeDocs.length > 0 && (
+              <div className="mt-3 p-3 rounded-lg bg-black/20 border border-white/5 space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold" style={{ color: 'hsl(var(--foreground-muted))' }}>
+                  <span>Attached Documents ({scopeDocs.length}):</span>
+                  <Link href={`/contracts/${c.id}?tab=documents`} className="text-sky-400 hover:underline flex items-center gap-1">
+                    Open in Documents Tab &rarr;
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {scopeDocs.map((doc) => (
+                    <div key={doc.id} className="flex items-center justify-between p-2 rounded bg-slate-800/60 border border-slate-700/50 text-xs">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileIcon size={14} className="text-sky-400 flex-shrink-0" />
+                        <span className="truncate font-medium text-slate-200">{doc.file_name || doc.description || 'Attached Document'}</span>
+                      </div>
+                      {doc.file_url && (
+                        <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="p-1 text-sky-400 hover:text-sky-300">
+                          <Download size={13} />
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         )}
