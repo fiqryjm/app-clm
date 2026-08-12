@@ -341,9 +341,10 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
             <div className="label">Used of Contract</div>
             {editing ? (
               <select className="input-base py-1.5 text-sm" value={editData.used_of_contract || c.used_of_contract || ''} onChange={(e) => setEditData((d) => ({ ...d, used_of_contract: e.target.value || null }))}>
-                <option value="">Select purpose...</option>
+                <option value="" disabled hidden>Select purpose...</option>
                 <option value="Project">Project</option>
                 <option value="In-house">In-house</option>
+                <option value="Other">Other</option>
               </select>
             ) : (
               <div className="text-sm" style={{ color: c.used_of_contract ? 'hsl(var(--foreground))' : 'hsl(var(--foreground-muted))' }}>

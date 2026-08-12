@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { CURRENCIES, CONTRACT_TYPES } from '@/lib/utils'
 import { supabase, generateNextContractId } from '@/lib/supabase'
 
-const USED_OF_CONTRACT_OPTIONS = ['Project', 'In-house']
+const USED_OF_CONTRACT_OPTIONS = ['Project', 'In-house', 'Other']
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -241,7 +241,7 @@ export default function NewContractPage() {
             </div>
             <Field label="Used of Contract">
               <select className="input-base" value={formData.used_of_contract} onChange={(e) => handleChange('used_of_contract', e.target.value)}>
-                <option value="">Select purpose...</option>
+                <option value="" disabled hidden>Select purpose...</option>
                 {USED_OF_CONTRACT_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </Field>
