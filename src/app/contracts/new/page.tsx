@@ -7,11 +7,7 @@ import Link from 'next/link'
 import { CURRENCIES, CONTRACT_TYPES } from '@/lib/utils'
 import { supabase, generateNextContractId } from '@/lib/supabase'
 
-const USED_OF_CONTRACT_OPTIONS = [
-  'Procurement of Goods', 'Procurement of Services', 'Construction Works',
-  'Consulting Services', 'Maintenance & Repair', 'Rental/Lease',
-  'Sales of Goods', 'Sales of Services', 'Technology License', 'Other',
-]
+const USED_OF_CONTRACT_OPTIONS = ['Project', 'In-house']
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (

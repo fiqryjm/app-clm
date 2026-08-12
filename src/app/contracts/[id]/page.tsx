@@ -337,7 +337,20 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
           <div><div className="label">End Date</div>{editing ? field('end_date') : <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.end_date)}</div>}</div>
           <div><div className="label">Expiry Reminder</div>{editing ? field('expiry_reminder_date') : <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.expiry_reminder_date)}</div>}</div>
           <div><div className="label">Location of Work</div>{field('location_of_work')}</div>
-          <div><div className="label">Used of Contract</div>{field('used_of_contract')}</div>
+          <div>
+            <div className="label">Used of Contract</div>
+            {editing ? (
+              <select className="input-base py-1.5 text-sm" value={editData.used_of_contract || c.used_of_contract || ''} onChange={(e) => setEditData((d) => ({ ...d, used_of_contract: e.target.value || null }))}>
+                <option value="">Select purpose...</option>
+                <option value="Project">Project</option>
+                <option value="In-house">In-house</option>
+              </select>
+            ) : (
+              <div className="text-sm" style={{ color: c.used_of_contract ? 'hsl(var(--foreground))' : 'hsl(var(--foreground-muted))' }}>
+                {c.used_of_contract || '—'}
+              </div>
+            )}
+          </div>
           <div>
             <div className="label">Currency</div>
             {editing ? (
