@@ -64,14 +64,14 @@ export const CURRENCIES = [
 export const CONTRACT_TYPES = [
   'Service Agreement',
   'Supply Agreement',
-  'Maintenance Contract',
-  'Construction Contract',
+  'Maintenance Agreement',
+  'Construction Agreement',
   'Consulting Agreement',
   'License Agreement',
   'Distribution Agreement',
   'Partnership Agreement',
   'Non-Disclosure Agreement',
-  'Framework Agreement',
+  'Master Agreement',
   'Other',
 ]
 
