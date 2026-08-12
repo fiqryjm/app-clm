@@ -213,7 +213,7 @@ export default function ContractRepositoryPage() {
 
               <div className="pt-2">
                 <Link
-                  href={`/contracts/${c.id}`}
+                  href={`/contracts/${c.id}?tab=documents`}
                   className="btn-secondary w-full justify-center text-xs py-2"
                 >
                   <FolderKanban size={14} /> Open Repository Files
@@ -253,7 +253,7 @@ export default function ContractRepositoryPage() {
                       {c.total_contract_value ? formatCurrency(c.total_contract_value, c.currency) : '—'}
                     </td>
                     <td>
-                      <Link href={`/contracts/${c.id}`} className="text-xs text-sky-400 hover:underline">
+                      <Link href={`/contracts/${c.id}?tab=documents`} className="text-xs text-sky-400 hover:underline">
                         Open
                       </Link>
                     </td>

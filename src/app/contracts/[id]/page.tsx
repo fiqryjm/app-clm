@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import {
   ArrowLeft, Edit, FileText, DollarSign, Calendar,
   Milestone, FolderOpen, AlertTriangle, CheckSquare, Clock, Loader2,
@@ -53,14 +53,27 @@ const STATUS_OPTIONS = ['REQUEST', 'DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED'] a
 export default function ContractDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const id = params.id as string
+  const tabParam = searchParams.get('tab') as TabKey | null
 
   const [contract, setContract] = useState<Contract | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<TabKey>('overview')
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    if (tabParam && TABS.some((t) => t.key === tabParam)) {
+      return tabParam
+    }
+    return 'overview'
+  })
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [editData, setEditData] = useState<Partial<Contract>>({})
+
+  useEffect(() => {
+    if (tabParam && TABS.some((t) => t.key === tabParam)) {
+      setActiveTab(tabParam)
+    }
+  }, [tabParam])
 
   const loadContract = async () => {
     const { data, error } = await supabase.from('contracts').select('*').eq('id', id).single()
