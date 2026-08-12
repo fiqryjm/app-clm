@@ -211,12 +211,18 @@ export default function ContractRepositoryPage() {
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex items-center gap-2">
                 <Link
                   href={`/contracts/${c.id}?tab=documents`}
-                  className="btn-secondary w-full justify-center text-xs py-2"
+                  className="btn-secondary flex-1 justify-center text-xs py-2"
                 >
-                  <FolderKanban size={14} /> Open Repository Files
+                  <FolderKanban size={14} /> Open Files
+                </Link>
+                <Link
+                  href={`/contracts/${c.id}?edit=true`}
+                  className="btn-secondary text-xs py-2 px-3 text-amber-400 hover:text-amber-300"
+                >
+                  Edit
                 </Link>
               </div>
             </div>
@@ -236,7 +242,7 @@ export default function ContractRepositoryPage() {
                   <th>Start Date</th>
                   <th>Expiry Date</th>
                   <th className="text-right">Value</th>
-                  <th className="w-16">Action</th>
+                  <th className="w-24">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -253,9 +259,14 @@ export default function ContractRepositoryPage() {
                       {c.total_contract_value ? formatCurrency(c.total_contract_value, c.currency) : '—'}
                     </td>
                     <td>
-                      <Link href={`/contracts/${c.id}?tab=documents`} className="text-xs text-sky-400 hover:underline">
-                        Open
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/contracts/${c.id}?tab=documents`} className="text-xs text-sky-400 hover:underline">
+                          Open
+                        </Link>
+                        <Link href={`/contracts/${c.id}?edit=true`} className="text-xs text-amber-400 hover:underline">
+                          Edit
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

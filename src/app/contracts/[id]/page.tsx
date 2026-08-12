@@ -56,6 +56,7 @@ export default function ContractDetailPage() {
   const searchParams = useSearchParams()
   const id = params.id as string
   const tabParam = searchParams.get('tab') as TabKey | null
+  const editParam = searchParams.get('edit') === 'true'
 
   const [contract, setContract] = useState<Contract | null>(null)
   const [loading, setLoading] = useState(true)
@@ -74,6 +75,12 @@ export default function ContractDetailPage() {
       setActiveTab(tabParam)
     }
   }, [tabParam])
+
+  useEffect(() => {
+    if (editParam) {
+      setEditing(true)
+    }
+  }, [editParam])
 
   const loadContract = async () => {
     const { data, error } = await supabase.from('contracts').select('*').eq('id', id).single()
@@ -98,7 +105,7 @@ export default function ContractDetailPage() {
 
     const updatePayload = {
       ...editData,
-      total_contract_value: computedTotal > 0 ? computedTotal : editData.total_contract_value,
+      total_contract_value: computedTotal > 0 ? computedTotal : (editData.total_contract_value ?? contract.total_contract_value),
     }
 
     const { data, error } = await supabase
@@ -109,6 +116,7 @@ export default function ContractDetailPage() {
       .single()
     if (!error && data) {
       setContract(data as Contract)
+      setEditData(data as Contract)
       setEditing(false)
     }
     setSaving(false)
@@ -143,7 +151,18 @@ export default function ContractDetailPage() {
         <div className="flex items-start justify-between gap-4 mb-5">
           <div>
             <div className="flex items-center gap-3 mb-2 flex-wrap">
-              <span className="font-mono text-sm font-bold" style={{ color: 'hsl(var(--primary))' }}>{c.contract_id}</span>
+              {editing ? (
+                <input
+                  type="text"
+                  value={editData.contract_id ?? c.contract_id}
+                  onChange={(e) => setEditData((d) => ({ ...d, contract_id: e.target.value }))}
+                  className="input-base font-mono text-xs font-bold py-1 w-auto"
+                  style={{ width: 'auto', minWidth: 140 }}
+                />
+              ) : (
+                <span className="font-mono text-sm font-bold" style={{ color: 'hsl(var(--primary))' }}>{c.contract_id}</span>
+              )}
+
               {editing ? (
                 <select
                   value={editData.status || c.status}
@@ -156,26 +175,40 @@ export default function ContractDetailPage() {
               ) : (
                 <StatusBadge status={c.status} />
               )}
-              <span className="text-xs px-2 py-0.5 rounded" style={{
-                background: c.contract_type === 'SALES' ? 'hsl(199 89% 48% / 0.15)' : 'hsl(239 84% 67% / 0.15)',
-                color: c.contract_type === 'SALES' ? 'hsl(199 89% 60%)' : 'hsl(239 84% 75%)',
-              }}>
-                {c.contract_type === 'SALES' ? '↗ Sales' : '↙ Supplier'}
-              </span>
+
+              {editing ? (
+                <select
+                  value={editData.contract_type || c.contract_type}
+                  onChange={(e) => setEditData((d) => ({ ...d, contract_type: e.target.value as Contract['contract_type'] }))}
+                  className="input-base py-1 w-auto text-xs"
+                  style={{ width: 'auto', minWidth: 110 }}
+                >
+                  <option value="SALES">↗ Sales</option>
+                  <option value="SUPPLIER">↙ Supplier</option>
+                </select>
+              ) : (
+                <span className="text-xs px-2 py-0.5 rounded" style={{
+                  background: c.contract_type === 'SALES' ? 'hsl(199 89% 48% / 0.15)' : 'hsl(239 84% 67% / 0.15)',
+                  color: c.contract_type === 'SALES' ? 'hsl(199 89% 60%)' : 'hsl(239 84% 75%)',
+                }}>
+                  {c.contract_type === 'SALES' ? '↗ Sales' : '↙ Supplier'}
+                </span>
+              )}
             </div>
             {editing ? (
               <input
                 type="text"
                 value={editData.contract_title || ''}
                 onChange={(e) => setEditData((d) => ({ ...d, contract_title: e.target.value }))}
-                className="input-base text-xl font-bold"
+                className="input-base text-xl font-bold mb-1"
                 style={{ fontSize: '1.2rem' }}
+                placeholder="Contract Title..."
               />
             ) : (
               <h1 className="text-xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>{c.contract_title}</h1>
             )}
             <p className="text-sm mt-1" style={{ color: 'hsl(var(--foreground-muted))' }}>
-              {c.counterpart_name} · {c.cost_center} · {c.type_of_contract}
+              {c.counterpart_name || 'No Counterpart'} · {c.cost_center || 'No Cost Center'} · {c.type_of_contract || 'No Contract Type'}
             </p>
           </div>
 
@@ -190,7 +223,7 @@ export default function ContractDetailPage() {
               </>
             ) : (
               <button onClick={() => setEditing(true)} className="btn-secondary">
-                <Edit size={14} /> Edit
+                <Edit size={14} /> Edit Contract
               </button>
             )}
           </div>
@@ -280,9 +313,12 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
           Contract Information
         </h3>
         <div className="grid grid-cols-3 gap-x-8 gap-y-4">
+          <div><div className="label">Contract ID</div>{field('contract_id')}</div>
+          <div><div className="label">Cost Center</div>{field('cost_center')}</div>
+          <div><div className="label">Type of Contract</div>{field('type_of_contract')}</div>
           <div><div className="label">Requisition No</div>{field('requisition_no')}</div>
           <div><div className="label">Date Request</div>{editing ? field('date_request') : <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.date_request)}</div>}</div>
-          <div><div className="label">Date Entry</div><div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.date_entry)}</div></div>
+          <div><div className="label">Date Entry</div>{editing ? field('date_entry') : <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.date_entry)}</div>}</div>
           <div><div className="label">Start Date</div>{editing ? field('start_date') : <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.start_date)}</div>}</div>
           <div><div className="label">End Date</div>{editing ? field('end_date') : <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.end_date)}</div>}</div>
           <div><div className="label">Expiry Reminder</div>{editing ? field('expiry_reminder_date') : <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{formatDate(c.expiry_reminder_date)}</div>}</div>
@@ -298,7 +334,30 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
               <div className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{c.currency}</div>
             )}
           </div>
+          <div>
+            <div className="label">Owner Estimate</div>
+            <InfoNumberField value={c.owner_estimate} editing={editing} editKey="owner_estimate" editData={editData} setEditData={setEditData} />
+          </div>
+          <div>
+            <div className="label">Initial Contract Value</div>
+            <InfoNumberField value={c.initial_contract_value} editing={editing} editKey="initial_contract_value" editData={editData} setEditData={setEditData} />
+          </div>
         </div>
+
+        {(editing || c.bom_scope_of_work) && (
+          <div className="mt-4">
+            <div className="label">BOM / Scope of Work</div>
+            {editing ? (
+              <textarea rows={3} className="input-base resize-none text-sm"
+                value={editData.bom_scope_of_work || ''}
+                onChange={(e) => setEditData((d) => ({ ...d, bom_scope_of_work: e.target.value || null }))}
+              />
+            ) : (
+              <p className="text-sm whitespace-pre-wrap" style={{ color: 'hsl(var(--foreground))' }}>{c.bom_scope_of_work}</p>
+            )}
+          </div>
+        )}
+
         {(editing || c.contract_brief_summary) && (
           <div className="mt-4">
             <div className="label">Contract Brief Summary</div>
@@ -308,7 +367,7 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
                 onChange={(e) => setEditData((d) => ({ ...d, contract_brief_summary: e.target.value || null }))}
               />
             ) : (
-              <p className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>{c.contract_brief_summary}</p>
+              <p className="text-sm whitespace-pre-wrap" style={{ color: 'hsl(var(--foreground))' }}>{c.contract_brief_summary}</p>
             )}
           </div>
         )}
@@ -323,8 +382,9 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
             <InfoField label="Phone" value={c.company_rep_phone} editing={editing} editKey="company_rep_phone" editData={editData} setEditData={setEditData} />
             <InfoField label="E-mail" value={c.company_rep_email} editing={editing} editKey="company_rep_email" editData={editData} setEditData={setEditData} />
             <InfoField label="End User Name" value={c.end_user_name} editing={editing} editKey="end_user_name" editData={editData} setEditData={setEditData} />
-            <InfoField label="Department" value={c.end_user_department} editing={editing} editKey="end_user_department" editData={editData} setEditData={setEditData} />
+            <InfoField label="End User Department" value={c.end_user_department} editing={editing} editKey="end_user_department" editData={editData} setEditData={setEditData} />
             <InfoField label="Contract Manager" value={c.contract_manager} editing={editing} editKey="contract_manager" editData={editData} setEditData={setEditData} />
+            <InfoField label="Contract Manager Department" value={c.contract_manager_department} editing={editing} editKey="contract_manager_department" editData={editData} setEditData={setEditData} />
             <InfoField label="Approved By" value={c.approved_by} editing={editing} editKey="approved_by" editData={editData} setEditData={setEditData} />
           </div>
         </div>
@@ -340,9 +400,33 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
             <InfoField label="Approving Person" value={c.counterpart_approving_person} editing={editing} editKey="counterpart_approving_person" editData={editData} setEditData={setEditData} />
             <InfoField label="Representative" value={c.counterpart_representative} editing={editing} editKey="counterpart_representative" editData={editData} setEditData={setEditData} />
             <InfoField label="Rep Phone" value={c.counterpart_rep_phone} editing={editing} editKey="counterpart_rep_phone" editData={editData} setEditData={setEditData} />
+            <InfoField label="Rep E-mail" value={c.counterpart_rep_email} editing={editing} editKey="counterpart_rep_email" editData={editData} setEditData={setEditData} />
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function InfoNumberField({ value, editing, editKey, editData, setEditData }: {
+  value: number | null | undefined
+  editing: boolean
+  editKey: keyof Contract
+  editData: Partial<Contract>
+  setEditData: (fn: (d: Partial<Contract>) => Partial<Contract>) => void
+}) {
+  return editing ? (
+    <input
+      type="number"
+      step="0.01"
+      value={(editData[editKey] as number) ?? ''}
+      onChange={(e) => setEditData((d) => ({ ...d, [editKey]: e.target.value ? Number(e.target.value) : null }))}
+      className="input-base py-1.5 text-sm"
+      placeholder="0.00"
+    />
+  ) : (
+    <div className="text-sm font-medium" style={{ color: value != null ? 'hsl(var(--foreground))' : 'hsl(var(--foreground-muted))' }}>
+      {value != null ? formatCurrency(value, '') : '—'}
     </div>
   )
 }

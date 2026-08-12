@@ -230,13 +230,21 @@ export default function ExpiryReportPage() {
                     <td className="text-right font-medium text-xs tabular-nums" style={{ color: 'hsl(var(--foreground))' }}>
                       {c.total_contract_value ? formatCurrency(c.total_contract_value, c.currency) : '—'}
                     </td>
-                    <td>
-                      <Link
-                        href={`/contracts/${c.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
-                      >
-                        View <ArrowRight size={12} />
-                      </Link>
+                    <td className="w-24">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/contracts/${c.id}`}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                        >
+                          View <ArrowRight size={12} />
+                        </Link>
+                        <Link
+                          href={`/contracts/${c.id}?edit=true`}
+                          className="text-xs font-semibold text-amber-400 hover:underline"
+                        >
+                          Edit
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -196,9 +196,14 @@ export default function ContractsPage() {
                     </td>
                     <td><StatusBadge status={c.status} /></td>
                     <td>
-                      <Link href={`/contracts/${c.id}`} className="text-xs font-medium" style={{ color: 'hsl(var(--primary))' }}>
-                        View →
-                      </Link>
+                      <div className="flex items-center gap-2.5">
+                        <Link href={`/contracts/${c.id}`} className="text-xs font-medium" style={{ color: 'hsl(var(--primary))' }}>
+                          View →
+                        </Link>
+                        <Link href={`/contracts/${c.id}?edit=true`} className="text-xs font-medium text-amber-400 hover:underline">
+                          Edit
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))
