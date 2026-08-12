@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -50,7 +50,7 @@ function ValueCard({ label, value, currency, color }: { label: string; value: nu
 
 const STATUS_OPTIONS = ['REQUEST', 'DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED'] as const
 
-export default function ContractDetailPage() {
+function ContractDetailPageContent() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -82,17 +82,17 @@ export default function ContractDetailPage() {
     }
   }, [editParam])
 
-  const loadContract = async () => {
+  const loadContract = useCallback(async () => {
     const { data, error } = await supabase.from('contracts').select('*').eq('id', id).single()
     if (error || !data) { router.push('/contracts'); return }
     setContract(data as Contract)
     setEditData(data as Contract)
-  }
+  }, [id, router])
 
   useEffect(() => {
     setLoading(true)
     loadContract().finally(() => setLoading(false))
-  }, [id])
+  }, [loadContract])
 
   const handleSave = async () => {
     if (!contract) return
@@ -284,6 +284,20 @@ export default function ContractDetailPage() {
         {activeTab === 'deliverables' && <DeliverablesTab contractId={c.id} />}
       </div>
     </div>
+  )
+}
+
+export default function ContractDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-64">
+          <Loader2 size={32} className="animate-spin" style={{ color: 'hsl(var(--primary))' }} />
+        </div>
+      }
+    >
+      <ContractDetailPageContent />
+    </Suspense>
   )
 }
 
