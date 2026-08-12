@@ -1,0 +1,234 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Base Colors - Sleek Dark Theme with FJM Brand Colors */
+    --background: 220 30% 7%;
+    --surface: 220 25% 10%;
+    --surface-2: 220 20% 14%;
+    --surface-3: 220 18% 18%;
+    
+    --border: 220 15% 20%;
+    --border-hover: 220 20% 30%;
+
+    --foreground: 210 20% 98%;
+    --foreground-muted: 218 12% 65%;
+
+    /* FJM Brand Colors:
+       FJM Red: #d9232a -> HSL(358, 72%, 49%)
+       FJM Blue: #0072bc -> HSL(204, 100%, 37%)
+    */
+    --primary: 204 100% 45%;          /* FJM Vibrant Blue */
+    --primary-hover: 204 100% 38%;
+    --primary-glow: 204 100% 45% / 0.25;
+
+    --brand-red: 358 72% 52%;          /* FJM Red */
+    --brand-red-hover: 358 72% 44%;
+    --brand-red-glow: 358 72% 52% / 0.25;
+
+    --secondary: 358 72% 52%;        /* FJM Red as Secondary */
+    --secondary-hover: 358 72% 44%;
+
+    /* Status Colors */
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --danger: 358 75% 55%;
+    --info: 204 100% 50%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--surface));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--surface-3));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--border-hover));
+}
+
+/* Glassmorphism & Card Styles */
+.card {
+  background-color: hsl(var(--surface));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+}
+
+.card-hover {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  border-color: hsl(var(--primary) / 0.4);
+  box-shadow: 0 4px 20px -2px hsl(var(--primary-glow));
+}
+
+/* Button Utilities */
+.btn-primary {
+  background: linear-gradient(135deg, hsl(var(--brand-red)), hsl(358 75% 42%));
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 10px -2px hsl(var(--brand-red-glow));
+}
+.btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px -2px hsl(var(--brand-red-glow));
+}
+
+.btn-blue {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(204 100% 35%));
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  items: center;
+  gap: 0.5rem;
+}
+.btn-blue:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: hsl(var(--surface-2));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  items: center;
+  gap: 0.5rem;
+}
+.btn-secondary:hover {
+  background-color: hsl(var(--surface-3));
+  border-color: hsl(var(--border-hover));
+}
+
+/* Input Fields */
+.input-base {
+  background-color: hsl(var(--surface-2));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input-base:focus {
+  outline: none;
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary-glow));
+}
+
+.label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsl(var(--foreground-muted));
+  margin-bottom: 0.375rem;
+}
+
+/* Status Badges */
+.status-active {
+  background-color: hsl(var(--success) / 0.15);
+  color: hsl(142 71% 55%);
+  border: 1px solid hsl(var(--success) / 0.3);
+}
+.status-request {
+  background-color: hsl(var(--warning) / 0.15);
+  color: hsl(38 92% 60%);
+  border: 1px solid hsl(var(--warning) / 0.3);
+}
+.status-draft {
+  background-color: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
+  border: 1px solid hsl(var(--primary) / 0.3);
+}
+.status-expired {
+  background-color: hsl(var(--brand-red) / 0.15);
+  color: hsl(var(--brand-red));
+  border: 1px solid hsl(var(--brand-red) / 0.3);
+}
+.status-terminated {
+  background-color: hsl(var(--foreground-muted) / 0.15);
+  color: hsl(var(--foreground-muted));
+  border: 1px solid hsl(var(--foreground-muted) / 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background-color: hsl(var(--surface-3));
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--brand-red)));
+  transition: width 0.3s ease;
+}
+
+/* Data Table */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.data-table th {
+  background-color: hsl(var(--surface-2));
+  color: hsl(var(--foreground-muted));
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.data-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  font-size: 0.875rem;
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+.data-table tr:hover td {
+  background-color: hsl(var(--surface-2) / 0.5);
+}
