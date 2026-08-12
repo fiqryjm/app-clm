@@ -161,7 +161,7 @@ export function FinancialTab({ contractId, currency, onSaved }: { contractId: st
               {lineItems.length === 0 ? (
                 <tr><td colSpan={6} className="text-center py-8 text-sm" style={{ color: 'hsl(var(--foreground-muted))' }}>No line items yet. Click "Add Line Item" to start.</td></tr>
               ) : lineItems.map((item) => {
-                const diff = (item.contract_value ?? 0) - (item.budget ?? 0)
+                const diff = (item.budget ?? 0) - (item.contract_value ?? 0)
                 return (
                   <tr key={item.id}>
                     <td className="text-center text-sm" style={{ color: 'hsl(var(--foreground-muted))' }}>{item.item_no}</td>
@@ -176,7 +176,7 @@ export function FinancialTab({ contractId, currency, onSaved }: { contractId: st
                       <EditableNumber value={item.budget} onChange={(v) => updateLineItem(item.id, 'budget', v)} />
                     </td>
                     <td className="text-right">
-                      <span className="text-sm font-medium tabular-nums" style={{ color: diff > 0 ? 'hsl(var(--danger))' : 'hsl(var(--success))' }}>
+                      <span className="text-sm font-medium tabular-nums" style={{ color: diff < 0 ? 'hsl(var(--danger))' : 'hsl(var(--success))' }}>
                         {diff > 0 ? '+' : ''}{formatCurrency(diff, '')}
                       </span>
                     </td>

@@ -5,24 +5,27 @@ import { Plus, Trash2, Save, Loader2, CheckCircle2, Clock, AlertCircle } from 'l
 import { supabase } from '@/lib/supabase'
 import type { Milestone } from '@/types/database'
 
-function getMilestoneStatus(initial: string | null, actual: string | null): 'completed-early' | 'completed-late' | 'on-track' | 'at-risk' | 'overdue' {
-  if (!initial) return 'on-track'
-  if (actual) {
-    return new Date(actual) <= new Date(initial) ? 'completed-early' : 'completed-late'
+function getMilestoneStatus(initial: string | null, actual: string | null): 'ahead' | 'on-target' | 'late' {
+  if (actual && initial) {
+    const act = new Date(actual).setHours(0, 0, 0, 0)
+    const init = new Date(initial).setHours(0, 0, 0, 0)
+    if (act < init) return 'ahead'
+    if (act === init) return 'on-target'
+    return 'late'
   }
-  const diffDays = Math.ceil((new Date(initial).getTime() - Date.now()) / 86400000)
-  if (diffDays < 0) return 'overdue'
-  if (diffDays <= 14) return 'at-risk'
-  return 'on-track'
+  if (initial) {
+    const today = new Date().setHours(0, 0, 0, 0)
+    const init = new Date(initial).setHours(0, 0, 0, 0)
+    if (today > init) return 'late'
+  }
+  return 'on-target'
 }
 
 function MilestoneStatusBadge({ status }: { status: ReturnType<typeof getMilestoneStatus> }) {
   const config = {
-    'completed-early': { label: 'Completed Early', color: 'hsl(var(--success))', icon: CheckCircle2 },
-    'completed-late': { label: 'Completed Late', color: 'hsl(var(--warning))', icon: CheckCircle2 },
-    'on-track': { label: 'On Track', color: 'hsl(var(--info))', icon: Clock },
-    'at-risk': { label: 'At Risk', color: 'hsl(var(--warning))', icon: AlertCircle },
-    'overdue': { label: 'Overdue', color: 'hsl(var(--danger))', icon: AlertCircle },
+    'ahead': { label: 'Ahead', color: 'hsl(var(--success))', icon: CheckCircle2 },
+    'on-target': { label: 'On Target', color: 'hsl(var(--info))', icon: Clock },
+    'late': { label: 'Late', color: 'hsl(var(--danger))', icon: AlertCircle },
   }
   const c = config[status]
   return (
@@ -111,9 +114,9 @@ export function MilestonesTab({ contractId }: { contractId: string }) {
           <div className="text-xs mt-1" style={{ color: 'hsl(var(--foreground-muted))' }}>{total - completed} remaining</div>
         </div>
         <div className="card p-4">
-          <div className="label mb-1">Overdue</div>
+          <div className="label mb-1">Late</div>
           <div className="text-lg font-bold" style={{ color: 'hsl(var(--danger))' }}>
-            {milestones.filter((m) => getMilestoneStatus(m.initial_deadline_date, m.actual_completion) === 'overdue').length}
+            {milestones.filter((m) => getMilestoneStatus(m.initial_deadline_date, m.actual_completion) === 'late').length}
           </div>
           <div className="text-xs mt-1" style={{ color: 'hsl(var(--foreground-muted))' }}>milestones past deadline</div>
         </div>
