@@ -42,6 +42,7 @@ export interface Contract {
   contract_manager_department: string | null
   company_approving_person: string | null
   counterpart_approving_person: string | null
+  counterpart_bank_account: string | null
   company_representative: string | null
   counterpart_representative: string | null
   company_rep_phone: string | null

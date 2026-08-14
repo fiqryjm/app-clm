@@ -65,6 +65,7 @@ export default function NewContractPage() {
     currency: 'IDR',
     end_user_name: '',
     end_user_department: '',
+    counterpart_bank_account: '',
     approved_by: '',
   })
 
@@ -116,6 +117,7 @@ export default function NewContractPage() {
           email: formData.email || null,
           used_of_contract: formData.used_of_contract || null,
           type_of_contract: formData.type_of_contract || null,
+          counterpart_bank_account: formData.counterpart_bank_account || null,
           contract_brief_summary: formData.contract_brief_summary || null,
           location_of_work: formData.location_of_work || null,
           bom_scope_of_work: formData.bom_scope_of_work || null,
@@ -297,6 +299,15 @@ export default function NewContractPage() {
                 <option value="" disabled hidden>Select purpose...</option>
                 {USED_OF_CONTRACT_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
+            </Field>
+            <Field label="Counterpart Bank Account">
+              <input
+                type="text"
+                className="input-base"
+                placeholder="Bank name – Account number – Account holder name"
+                value={formData.counterpart_bank_account}
+                onChange={(e) => handleChange('counterpart_bank_account', e.target.value)}
+              />
             </Field>
           </FormSection>
         </div>
