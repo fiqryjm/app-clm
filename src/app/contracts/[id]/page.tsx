@@ -470,6 +470,7 @@ function OverviewTab({ contract: c, editing, editData, setEditData }: {
             <InfoField label="Representative" value={c.counterpart_representative} editing={editing} editKey="counterpart_representative" editData={editData} setEditData={setEditData} />
             <InfoField label="Rep Phone" value={c.counterpart_rep_phone} editing={editing} editKey="counterpart_rep_phone" editData={editData} setEditData={setEditData} />
             <InfoField label="Rep E-mail" value={c.counterpart_rep_email} editing={editing} editKey="counterpart_rep_email" editData={editData} setEditData={setEditData} />
+            <InfoField label="Bank Account" value={c.counterpart_bank_account} editing={editing} editKey="counterpart_bank_account" editData={editData} setEditData={setEditData} />
           </div>
         </div>
       </div>
